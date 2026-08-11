@@ -168,13 +168,6 @@
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label>Alege Activitatea Zilnică Executată</label>
-                    <select id="pontaj-activitate-select">
-                        <option value="">-- Se încarcă activitățile... --</option>
-                    </select>
-                </div>
-
                 <button class="btn btn-success" onclick="salveazaPontaj()">📲 Trimite Pontaj</button>
             </div>
 
@@ -381,7 +374,6 @@
                     document.querySelectorAll('.sef-only').forEach(el => el.style.display = 'none');
                 }
                 document.getElementById('pontaj-data').value = new Date().toISOString().slice(0, 16);
-                actualizeazaSelectActivitati();
                 incarcaActivitateInTab();
             } else {
                 alert('❌ Cod PIN incorect!');
@@ -427,19 +419,8 @@
 
             document.getElementById('act-titlu').value = '';
             document.getElementById('act-zona').value = '';
-            actualizeazaSelectActivitati();
             incarcaActivitateInTab();
             alert('✅ Activitate înregistrată!');
-        }
-
-        function actualizeazaSelectActivitati() {
-            const sel = document.getElementById('pontaj-activitate-select');
-            let lista = JSON.parse(localStorage.getItem('smart_activitati') || '[]');
-            if(lista.length === 0) {
-                sel.innerHTML = '<option value="General">General / Necertificat</option>';
-                return;
-            }
-            sel.innerHTML = lista.map(a => `<option value="${a.titlu} (${a.zona})">${a.titlu} - ${a.zona} (${a.data})</option>`).join('');
         }
 
         function incarcaActivitateInTab() {
@@ -461,9 +442,8 @@
         function salveazaPontaj() {
             const tip = document.getElementById('pontaj-tip').value;
             const dataora = document.getElementById('pontaj-data').value.replace('T', ' ');
-            const activitate = document.getElementById('pontaj-activitate-select').value;
 
-            const rec = { angajat: utilizatorCurent.nume, tip, dataora, activitate };
+            const rec = { angajat: utilizatorCurent.nume, tip, dataora };
             let stoc = JSON.parse(localStorage.getItem('pontaje_data') || '[]');
             stoc.unshift(rec);
             localStorage.setItem('pontaje_data', JSON.stringify(stoc));
@@ -525,7 +505,7 @@
 
             target.innerHTML = data.map(i => `
                 <div class="list-item">
-                    ${tip === 'pontaj' ? `<b>${i.angajat}</b> - <span style="color:var(--primary)">${i.tip}</span><br><small>🕒 ${i.dataora} | Activitate: ${i.activitate}</small>` : ''}
+                    ${tip === 'pontaj' ? `<b>${i.angajat}</b> - <span style="color:var(--primary)">${i.tip}</span><br><small>🕒 ${i.dataora}</small>` : ''}
                     ${tip === 'activitati' ? `<b>${i.titlu}</b> (${i.zona})<br><small>Șef Echipă: ${i.sef} | Data: ${i.data}</small>` : ''}
                     ${tip === 'flota' ? `<b>${i.utilaj}</b> - Operat de ${i.angajat}<br><small>⏱️ Ore/Km: ${i.start} -> ${i.stop} (Total: <b>${i.oreLucrate} h/km</b>)<br>⛽ Carburant: ${i.litri} L (Bon: ${i.bon})<br>⚠️ Stare/Avarie: ${i.avarie}</small>` : ''}
                     ${tip === 'scule' ? `<b>${i.eq}</b> (${i.op}) - Operat de ${i.angajat}<br><small>Stare: ${i.stare} | Data: ${i.data}</small>` : ''}
@@ -554,7 +534,7 @@
             const container = document.getElementById('admin-lista-angajati');
             let users = getUtilizatori();
             container.innerHTML = users.map(u => `
-                <div class="list-item" style="display:flex; justify-space-between; align-items:center;">
+                <div class="list-item" style="display:flex; justify-content:space-between; align-items:center;">
                     <div><b>${u.nume}</b> (${u.rol === 'SEF_ECHIPA' ? 'Șef Echipă' : 'Angajat'})</div>
                     <div style="background:#cbd5e1; padding:2px 6px; border-radius:4px; font-weight:bold;">PIN: ${u.pin}</div>
                 </div>

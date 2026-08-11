@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>SmartSite Workflow Mobile</title>
+
+    <!-- Legături PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1048/1048953.png">
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #0f172a;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #334155;
+            --success: #16a34a;
+            --warning: #d97706;
+            --border: #e2e8f0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: var(--bg); color: var(--text); padding-bottom: 75px; -webkit-tap-highlight-color: transparent; }
+
+        header {
+            background: var(--secondary);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 900;
+        }
+
+        .logo { font-size: 1.1rem; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+        .logo span { color: #f59e0b; }
+
+        /* Banners pentru Stare Rețea */
+        #net-status {
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            text-align: center;
+            font-weight: bold;
+        }
+        .online { background: #dcfce7; color: #15803d; }
+        .offline { background: #fee2e2; color: #b91c1c; }
+
+        #install-pwa-banner {
+            display: none;
+            background: #fef3c7;
+            border-bottom: 1px solid #f59e0b;
+            padding: 10px 15px;
+            font-size: 0.85rem;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .container { max-width: 600px; margin: 15px auto; padding: 0 12px; }
+
+        /* Navigation Bar Bottom */
+        nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            z-index: 1000;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        }
+
+        nav button {
+            background: none;
+            border: none;
+            color: #64748b;
+            font-size: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            cursor: pointer;
+            width: 25%;
+        }
+
+        nav button.active { color: var(--primary); font-weight: bold; }
+        nav button svg { width: 22px; height: 22px; fill: currentColor; }
+
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border);
+        }
+
+        .card h2 { font-size: 1rem; color: var(--secondary); margin-bottom: 12px; }
+
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 5px; color: #475569; }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .row { display: flex; gap: 10px; }
+        .row .form-group { flex: 1; }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        canvas { border: 1px dashed var(--border); width: 100%; height: 100px; border-radius: 6px; background: #fafafa; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">📱 SmartSite <span>Mobile</span></div>
+        <div style="font-size: 0.75rem; opacity: 0.9;">Șantier Plaza A10</div>
+    </header>
+
+    <!-- Banner Stare Rețea -->
+    <div id="net-status" class="online">🟢 Conectat Online (Sincronizare Activă)</div>
+
+    <!-- Banner Instalare PWA -->
+    <div id="install-pwa-banner">
+        <span>📲 Instalează aplicația pe ecran!</span>
+        <button onclick="installApp()" style="background:var(--primary); color:white; border:none; padding:5px 10px; border-radius:5px; font-weight:bold;">Instalează</button>
+    </div>
+
+    <div class="container">
+
+        <!-- TAB 1: PONTAJ -->
+        <div id="tab-pontaj" class="tab-content active">
+            <div class="card">
+                <h2>⏱️ Pontaj Digital (GPS Auto-Check)</h2>
+                <div class="form-group">
+                    <label>Tip Operat</label>
+                    <select id="pontaj-tip">
+                        <option value="CHECK-IN">🟢 Intrare Tura (Check-IN)</option>
+                        <option value="CHECK-OUT">🔴 Ișire Tura (Check-OUT)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Cod Proiect / Activitate</label>
+                    <select id="pontaj-cod">
+                        <option>STR-01: Turnare Beton Cota 0</option>
+                        <option>STR-02: Armare Cofrag</option>
+                    </select>
+                </div>
+                <button class="btn" style="background:var(--success)" onclick="salveazaPontajLocal()">📲 Înregistrează Pontaj</button>
+            </div>
+
+            <div class="card">
+                <h2>📋 Pontaje Salvate Local / Nefinalizate</h2>
+                <ul id="lista-local-pontaj" style="font-size:0.85rem; padding-left:15px; color:#475569;">
+                    <li>Se încarcă datele...</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- TAB 2: ECHIPAMENTE -->
+        <div id="tab-echipamente" class="tab-content">
+            <div class="card">
+                <h2>🧰 Predare / Preluare Scule</h2>
+                <div class="form-group">
+                    <label>Alege Echipament</label>
+                    <select>
+                        <option>Ciocan Hilti TE 3000 (#EQ-101)</option>
+                        <option>Generator Honda 10kVA (#EQ-102)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Semnătură Primitor</label>
+                    <canvas id="sig-canvas"></canvas>
+                </div>
+                <button class="btn" onclick="alert('Preluare înregistrată!')">💾 Salvează Predarea</button>
+            </div>
+        </div>
+
+        <!-- TAB 3: FLOTĂ -->
+        <div id="tab-flota" class="tab-content">
+            <div class="card">
+                <h2>🚜 Foaie de Parcurs & Alimentare</h2>
+                <div class="form-group">
+                    <label>Utilaj / Auto</label>
+                    <select>
+                        <option>Excavator Caterpillar 320</option>
+                        <option>MAN 8x4 (B-88-SNT)</option>
+                    </select>
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        <label>Index Ore/Km</label>
+                        <input type="number" placeholder="12450">
+                    </div>
+                    <div class="form-group">
+                        <label>Litri Alimentați</label>
+                        <input type="number" placeholder="100 L">
+                    </div>
+                </div>
+                <button class="btn" style="background:var(--warning)" onclick="alert('Alimentare salvată!')">⛽ Înregistrează Alimentare</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Meniu Navigare Bottom -->
+    <nav>
+        <button class="active" onclick="switchTab('tab-pontaj', this)">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.2 3.2.8-1.3-4.5-2.7V7z"/></svg>
+            Pontaj
+        </button>
+        <button onclick="switchTab('tab-echipamente', this)">
+            <svg viewBox="0 0 24 24"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.6C.4 7 1 10 3 12c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.4-.4.4-1.1 0-1.5z"/></svg>
+            Scule
+        </button>
+        <button onclick="switchTab('tab-flota', this)">
+            <svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99z"/></svg>
+            Flotă
+        </button>
+    </nav>
+
+    <script>
+        // 1. Înregistrare Service Worker PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js')
+                .then(() => console.log("PWA Service Worker Înregistrat cu succes!"))
+                .catch(err => console.log("Eroare SW:", err));
+        }
+
+        // 2. Gestionare Instalare PWA (Prompt)
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('install-pwa-banner').style.display = 'flex';
+        });
+
+        function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choice) => {
+                    if (choice.outcome === 'accepted') {
+                        document.getElementById('install-pwa-banner').style.display = 'none';
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        }
+
+        // 3. Monitorizare stare Online / Offline
+        function updateOnlineStatus() {
+            const banner = document.getElementById('net-status');
+            if (navigator.onLine) {
+                banner.className = 'online';
+                banner.innerHTML = '🟢 Conectat Online (Sincronizare Activă)';
+            } else {
+                banner.className = 'offline';
+                banner.innerHTML = '🔴 Mod Offline (Pontajul se salvează în telefon)';
+            }
+        }
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+
+        // 4. Schimbare Tab-uri
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        // 5. Salvare Pontaj în Telefon (LocalStorage)
+        function salveazaPontajLocal() {
+            const tip = document.getElementById('pontaj-tip').value;
+            const cod = document.getElementById('pontaj-cod').value;
+            const timp = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+            const pontajNou = { tip, cod, timp, datanow: new Date().toLocaleDateString() };
+            
+            let pontaje = JSON.parse(localStorage.getItem('pontaje_santiere') || '[]');
+            pontaje.push(pontajNou);
+            localStorage.setItem('pontaje_santiere', JSON.stringify(pontaje));
+
+            afiseazaPontajeLocale();
+            alert('✅ Pontaj salvat cu succes în telefon!');
+        }
+
+        function afiseazaPontajeLocale() {
+            const lista = document.getElementById('lista-local-pontaj');
+            let pontaje = JSON.parse(localStorage.getItem('pontaje_santiere') || '[]');
+            if(pontaje.length === 0) {
+                lista.innerHTML = '<li>Niciun pontaj înregistrat azi.</li>';
+                return;
+            }
+            lista.innerHTML = pontaje.map(p => `<li><b>${p.tip}</b> - ${p.cod} (${p.timp})</li>`).join('');
+        }
+
+        afiseazaPontajeLocale();
+    </script>
+</body>
+</html>

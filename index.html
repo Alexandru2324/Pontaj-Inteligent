@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>SmartSite Mobile - Șef Echipă & Activități</title>
+    <title>SmartSite Mobile - Șef Echipă</title>
 
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2563eb">
@@ -91,6 +91,7 @@
         }
         .btn-success { background: var(--success); }
         .btn-warning { background: var(--warning); }
+        .btn-danger { background: var(--danger); }
 
         canvas { border: 1px dashed var(--border); width: 100%; height: 110px; border-radius: 8px; background: #fafafa; touch-action: none; }
 
@@ -111,30 +112,25 @@
         .tab-content.active { display: block; }
 
         .list-item { padding: 10px; border-bottom: 1px solid #f1f5f9; font-size: 0.8rem; background: #fafafa; margin-bottom: 6px; border-radius: 6px; }
-        .sef-only { display: none; }
     </style>
 </head>
 <body>
 
-    <!-- ECRAN AUTENTIFICARE -->
+    <!-- ECRAN AUTENTIFICARE ȘEF ECHIPĂ -->
     <div id="login-screen">
         <div class="login-card">
             <h1>🏗️ SmartSite</h1>
-            <p>Introduceți Codul PIN</p>
+            <p>Acces Exclusiv Șef Echipă</p>
             <input type="password" id="pin-code" class="pin-input" maxlength="4" placeholder="••••">
-            <button class="btn" onclick="autentificare()">Autentificare</button>
-            <div style="margin-top: 15px; font-size: 0.75rem; color: #94a3b8; text-align: left;">
-                <b>PIN Șef Echipă:</b> 9999<br>
-                <b>PIN Angajați:</b> 1001 (Ion Popescu), 1002 (Vasile Ionescu)
-            </div>
+            <button class="btn" onclick="autentificare()">Autentificare Șef Echipă</button>
         </div>
     </div>
 
     <!-- HEADER -->
     <header>
-        <div class="logo">🏗️ SmartSite <span>Workflow</span></div>
+        <div class="logo">🏗️ SmartSite <span>Șef Echipă</span></div>
         <div>
-            <span id="user-display" class="user-badge">Neconectat</span>
+            <span id="user-display" class="user-badge">Șef Echipă</span>
             <button onclick="deconectare()" style="background:none; border:none; color:#ef4444; font-size:0.75rem; margin-left:5px; cursor:pointer;">Ieșire</button>
         </div>
     </header>
@@ -146,11 +142,13 @@
         <!-- TAB 1: PONTAJ -->
         <div id="tab-pontaj" class="tab-content active">
             <div class="card">
-                <h2>⏱️ Formular Pontaj Angajat</h2>
+                <h2>⏱️ Înregistrare Pontaj Echipă</h2>
 
                 <div class="form-group">
-                    <label>Angajat Autentificat</label>
-                    <input type="text" id="pontaj-angajat-nume" readonly style="background:#f1f5f9; font-weight:bold;">
+                    <label>Selectează Angajatul</label>
+                    <select id="pontaj-angajat-select">
+                        <!-- Populat dinamic din JS -->
+                    </select>
                 </div>
 
                 <div class="row">
@@ -168,31 +166,27 @@
                     </div>
                 </div>
 
-                <button class="btn btn-success" onclick="salveazaPontaj()">📲 Trimite Pontaj</button>
+                <button class="btn btn-success" onclick="salveazaPontaj()">📲 Salvează Pontaj</button>
             </div>
 
-            <!-- PANOU ADMINISTRARE DOAR PENTRU ȘEF ECHIPĂ (Apare doar pe pagina Pontaj) -->
-            <div class="card sef-only" style="border: 2px solid var(--primary);">
-                <h2>⚙️ Administrare Angajați (Doar Șef Echipă)</h2>
+            <!-- PANOU GESTIONARE ANGAJAȚI -->
+            <div class="card" style="border: 2px solid var(--primary);">
+                <h2>⚙️ Gestionare Angajați Echipă</h2>
                 <div class="form-group">
                     <label>Nume Angajat Nou</label>
                     <input type="text" id="admin-nume" placeholder="Ex: Popa Alexandru">
                 </div>
-                <div class="form-group">
-                    <label>Cod PIN Atribuit (4 Cifre)</label>
-                    <input type="number" id="admin-pin" placeholder="Ex: 1003">
-                </div>
-                <button class="btn btn-success" onclick="adaugaAngajat()">➕ Adaugă Angajat</button>
+                <button class="btn btn-success" onclick="adaugaAngajat()">➕ Adaugă Angajat în Listă</button>
 
-                <h3 style="font-size:0.9rem; margin-top:15px; margin-bottom:8px;">👥 Lista Angajați și PIN-uri</h3>
+                <h3 style="font-size:0.9rem; margin-top:15px; margin-bottom:8px;">👥 Lista Angajați Echipă</h3>
                 <div id="admin-lista-angajati"></div>
             </div>
         </div>
 
-        <!-- TAB 2: ACTIVITATE (PAGINĂ SEPARATĂ) -->
+        <!-- TAB 2: ACTIVITATE -->
         <div id="tab-activitate" class="tab-content">
-            <div class="card sef-only">
-                <h2>📝 Adăugare Activitate Zilnică (Șef Echipă)</h2>
+            <div class="card">
+                <h2>📝 Adăugare Activitate Zilnică</h2>
                 <div class="form-group">
                     <label>Denumire / Descriere Activitate</label>
                     <input type="text" id="act-titlu" placeholder="Ex: Turnare placă etaj 1 / Săpătură șanț">
@@ -201,7 +195,7 @@
                     <label>Zona / Sector Șantier</label>
                     <input type="text" id="act-zona" placeholder="Ex: Corp A, Ax 1-4">
                 </div>
-                <button class="btn" onclick="salveazaActivitate()">➕ Publică Activitatea</button>
+                <button class="btn" onclick="salveazaActivitate()">➕ Înregistrează Activitatea</button>
             </div>
 
             <div class="card">
@@ -214,6 +208,13 @@
         <div id="tab-echipamente" class="tab-content">
             <div class="card">
                 <h2>🧰 Predare / Preluare Scule & Echipamente</h2>
+
+                <div class="form-group">
+                    <label>Predat / Preluat de către Angajatul:</label>
+                    <select id="eq-angajat-select">
+                        <!-- Populat dinamic din JS -->
+                    </select>
+                </div>
 
                 <div class="form-group">
                     <label>Alege Sculă / Echipament</label>
@@ -256,6 +257,13 @@
         <div id="tab-flota" class="tab-content">
             <div class="card">
                 <h2>🚜 Foaie de Parcurs & Evidență Utilaj</h2>
+
+                <div class="form-group">
+                    <label>Operator Utilaj / Șofer:</label>
+                    <select id="flota-angajat-select">
+                        <!-- Populat dinamic din JS -->
+                    </select>
+                </div>
 
                 <div class="form-group">
                     <label>Vehicul / Utilaj</label>
@@ -344,44 +352,27 @@
     </nav>
 
     <script>
-        const utilizatoriDefault = [
-            { pin: "9999", nume: "Mihai Popa", rol: "SEF_ECHIPA" },
-            { pin: "1001", nume: "Ion Popescu", rol: "ANGAJAT" },
-            { pin: "1002", nume: "Vasile Ionescu", rol: "ANGAJAT" }
-        ];
+        const PIN_SEF_ECHIPA = "9999";
+        const angajatiDefault = ["Ion Popescu", "Vasile Ionescu"];
 
-        let utilizatorCurent = null;
-
-        function getUtilizatori() {
-            return JSON.parse(localStorage.getItem('smart_users') || JSON.stringify(utilizatoriDefault));
+        function getAngajati() {
+            return JSON.parse(localStorage.getItem('smart_angajati') || JSON.stringify(angajatiDefault));
         }
 
         function autentificare() {
             const pin = document.getElementById('pin-code').value;
-            const lista = getUtilizatori();
-            const gasit = lista.find(u => u.pin === pin);
-
-            if (gasit) {
-                utilizatorCurent = gasit;
+            if (pin === PIN_SEF_ECHIPA) {
                 document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('user-display').innerText = `${gasit.nume} (${gasit.rol === 'SEF_ECHIPA' ? 'Șef Echipă' : 'Angajat'})`;
-                document.getElementById('pontaj-angajat-nume').value = gasit.nume;
-
-                if (gasit.rol === 'SEF_ECHIPA') {
-                    document.querySelectorAll('.sef-only').forEach(el => el.style.display = 'block');
-                    afiseazaAngajatiAdmin();
-                } else {
-                    document.querySelectorAll('.sef-only').forEach(el => el.style.display = 'none');
-                }
                 document.getElementById('pontaj-data').value = new Date().toISOString().slice(0, 16);
+                actualizeazaSelectiiAngajati();
+                afiseazaAngajatiAdmin();
                 incarcaActivitateInTab();
             } else {
-                alert('❌ Cod PIN incorect!');
+                alert('❌ PIN incorect pentru Șef Echipă!');
             }
         }
 
         function deconectare() {
-            utilizatorCurent = null;
             document.getElementById('pin-code').value = '';
             document.getElementById('login-screen').style.display = 'flex';
         }
@@ -405,6 +396,15 @@
             if (tabId === 'tab-activitate') incarcaActivitateInTab();
         }
 
+        function actualizeazaSelectiiAngajati() {
+            const angajati = getAngajati();
+            const opțiuni = angajati.map(a => `<option value="${a}">${a}</option>`).join('');
+
+            document.getElementById('pontaj-angajat-select').innerHTML = opțiuni;
+            document.getElementById('eq-angajat-select').innerHTML = opțiuni;
+            document.getElementById('flota-angajat-select').innerHTML = opțiuni;
+        }
+
         // Activități
         function salveazaActivitate() {
             const titlu = document.getElementById('act-titlu').value.trim();
@@ -412,7 +412,7 @@
 
             if(!titlu) { alert('Completați denumirea activității!'); return; }
 
-            const nouaAct = { titlu, zona, data: new Date().toLocaleDateString(), sef: utilizatorCurent.nume };
+            const nouaAct = { titlu, zona, data: new Date().toLocaleDateString() };
             let lista = JSON.parse(localStorage.getItem('smart_activitati') || '[]');
             lista.unshift(nouaAct);
             localStorage.setItem('smart_activitati', JSON.stringify(lista));
@@ -433,26 +433,30 @@
             container.innerHTML = lista.map(a => `
                 <div class="list-item">
                     <b>${a.titlu}</b> - Sector: <u>${a.zona}</u><br>
-                    <small>Adăugat de: ${a.sef} | Data: ${a.data}</small>
+                    <small>Data: ${a.data}</small>
                 </div>
             `).join('');
         }
 
         // Pontaj
         function salveazaPontaj() {
+            const angajat = document.getElementById('pontaj-angajat-select').value;
             const tip = document.getElementById('pontaj-tip').value;
             const dataora = document.getElementById('pontaj-data').value.replace('T', ' ');
 
-            const rec = { angajat: utilizatorCurent.nume, tip, dataora };
+            if(!angajat) { alert('Selectați un angajat!'); return; }
+
+            const rec = { angajat, tip, dataora };
             let stoc = JSON.parse(localStorage.getItem('pontaje_data') || '[]');
             stoc.unshift(rec);
             localStorage.setItem('pontaje_data', JSON.stringify(stoc));
 
-            alert(`✅ Pontaj salvat!`);
+            alert(`✅ Pontaj salvat pentru ${angajat}!`);
         }
 
         // Flotă
         function salveazaFlota() {
+            const angajat = document.getElementById('flota-angajat-select').value;
             const utilaj = (document.getElementById('flota-select').value === 'CUSTOM') ? document.getElementById('flota-custom').value : document.getElementById('flota-select').value;
             const start = parseFloat(document.getElementById('flota-start').value) || 0;
             const stop = parseFloat(document.getElementById('flota-stop').value) || 0;
@@ -463,7 +467,7 @@
             const oreLucrate = (stop >= start && start > 0) ? (stop - start) : 0;
 
             const rec = {
-                angajat: utilizatorCurent.nume, utilaj, start, stop, oreLucrate,
+                angajat, utilaj, start, stop, oreLucrate,
                 litri, bon, avarie, data: new Date().toLocaleString()
             };
 
@@ -471,16 +475,17 @@
             stoc.unshift(rec);
             localStorage.setItem('flota_data', JSON.stringify(stoc));
 
-            alert(`⛽ Foaie parcurs salvată! Ore lucrate calculate: ${oreLucrate}`);
+            alert(`⛽ Foaie parcurs salvată! Ore lucrate: ${oreLucrate}`);
         }
 
         // Scule
         function salveazaEchipament() {
+            const angajat = document.getElementById('eq-angajat-select').value;
             const eq = (document.getElementById('eq-select').value === 'CUSTOM') ? document.getElementById('eq-custom').value : document.getElementById('eq-select').value;
             const op = document.getElementById('eq-operatiune').value;
             const stare = document.getElementById('eq-stare').value;
 
-            const rec = { angajat: utilizatorCurent.nume, eq, op, stare, data: new Date().toLocaleString() };
+            const rec = { angajat, eq, op, stare, data: new Date().toLocaleString() };
             let stoc = JSON.parse(localStorage.getItem('scule_data') || '[]');
             stoc.unshift(rec);
             localStorage.setItem('scule_data', JSON.stringify(stoc));
@@ -506,37 +511,48 @@
             target.innerHTML = data.map(i => `
                 <div class="list-item">
                     ${tip === 'pontaj' ? `<b>${i.angajat}</b> - <span style="color:var(--primary)">${i.tip}</span><br><small>🕒 ${i.dataora}</small>` : ''}
-                    ${tip === 'activitati' ? `<b>${i.titlu}</b> (${i.zona})<br><small>Șef Echipă: ${i.sef} | Data: ${i.data}</small>` : ''}
-                    ${tip === 'flota' ? `<b>${i.utilaj}</b> - Operat de ${i.angajat}<br><small>⏱️ Ore/Km: ${i.start} -> ${i.stop} (Total: <b>${i.oreLucrate} h/km</b>)<br>⛽ Carburant: ${i.litri} L (Bon: ${i.bon})<br>⚠️ Stare/Avarie: ${i.avarie}</small>` : ''}
-                    ${tip === 'scule' ? `<b>${i.eq}</b> (${i.op}) - Operat de ${i.angajat}<br><small>Stare: ${i.stare} | Data: ${i.data}</small>` : ''}
+                    ${tip === 'activitati' ? `<b>${i.titlu}</b> (${i.zona})<br><small>Data: ${i.data}</small>` : ''}
+                    ${tip === 'flota' ? `<b>${i.utilaj}</b> - Operator: ${i.angajat}<br><small>⏱️ Ore/Km: ${i.start} -> ${i.stop} (Total: <b>${i.oreLucrate} h/km</b>)<br>⛽ Carburant: ${i.litri} L (Bon: ${i.bon})<br>⚠️ Stare/Avarie: ${i.avarie}</small>` : ''}
+                    ${tip === 'scule' ? `<b>${i.eq}</b> (${i.op}) - Angajat: ${i.angajat}<br><small>Stare: ${i.stare} | Data: ${i.data}</small>` : ''}
                 </div>
             `).join('');
         }
 
-        // Admin Angajați
+        // Gestionare Angajați
         function adaugaAngajat() {
             const nume = document.getElementById('admin-nume').value.trim();
-            const pin = document.getElementById('admin-pin').value.trim();
 
-            if (!nume || pin.length !== 4) { alert('Introduceți un nume valid și un PIN din 4 cifre!'); return; }
+            if (!nume) { alert('Introduceți un nume de angajat valid!'); return; }
 
-            let users = getUtilizatori();
-            users.push({ pin, nume, rol: 'ANGAJAT' });
-            localStorage.setItem('smart_users', JSON.stringify(users));
+            let angajati = getAngajati();
+            angajati.push(nume);
+            localStorage.setItem('smart_angajati', JSON.stringify(angajati));
 
             document.getElementById('admin-nume').value = '';
-            document.getElementById('admin-pin').value = '';
+            actualizeazaSelectiiAngajati();
             afiseazaAngajatiAdmin();
-            alert(`✅ Angajat adăugat!`);
+            alert(`✅ Angajatul ${nume} a fost adăugat!`);
+        }
+
+        function stergeAngajat(index) {
+            let angajati = getAngajati();
+            angajati.splice(index, 1);
+            localStorage.setItem('smart_angajati', JSON.stringify(angajati));
+            actualizeazaSelectiiAngajati();
+            afiseazaAngajatiAdmin();
         }
 
         function afiseazaAngajatiAdmin() {
             const container = document.getElementById('admin-lista-angajati');
-            let users = getUtilizatori();
-            container.innerHTML = users.map(u => `
+            let angajati = getAngajati();
+            if(angajati.length === 0) {
+                container.innerHTML = '<p style="color:#94a3b8; font-size:0.8rem;">Nu există angajați în listă.</p>';
+                return;
+            }
+            container.innerHTML = angajati.map((a, index) => `
                 <div class="list-item" style="display:flex; justify-content:space-between; align-items:center;">
-                    <div><b>${u.nume}</b> (${u.rol === 'SEF_ECHIPA' ? 'Șef Echipă' : 'Angajat'})</div>
-                    <div style="background:#cbd5e1; padding:2px 6px; border-radius:4px; font-weight:bold;">PIN: ${u.pin}</div>
+                    <div><b>${a}</b></div>
+                    <button class="btn btn-danger" style="width:auto; padding:4px 8px; font-size:0.75rem;" onclick="stergeAngajat(${index})">Șterge</button>
                 </div>
             `).join('');
         }
@@ -556,16 +572,16 @@
 
         // Export Excel
         function exportCSV() {
-            let data = JSON.parse(localStorage.getItem('flota_data') || '[]');
+            let data = JSON.parse(localStorage.getItem('pontaje_data') || '[]');
             if(data.length === 0) { alert('Nu există date de exportat!'); return; }
 
-            let csv = "data:text/csv;charset=utf-8,Utilaj,Operator,IndexStart,IndexStop,OreLucrate,Litri,Bon,Avarie,Data\n";
-            data.forEach(r => { csv += `"${r.utilaj}","${r.angajat}","${r.start}","${r.stop}","${r.oreLucrate}","${r.litri}","${r.bon}","${r.avarie}","${r.data}"\n`; });
+            let csv = "data:text/csv;charset=utf-8,Angajat,Tip,DataOra\n";
+            data.forEach(r => { csv += `"${r.angajat}","${r.tip}","${r.dataora}"\n`; });
 
             const uri = encodeURI(csv);
             const link = document.createElement("a");
             link.setAttribute("href", uri);
-            link.setAttribute("download", "raport_flota_utilaje.csv");
+            link.setAttribute("download", "raport_pontaj.csv");
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
